@@ -1,0 +1,18 @@
+src
+└── main
+    └── java
+        └── com.example.springdemo
+            ├── SpringDemoApplication.java
+            │
+            ├── controller
+            │   └── StudentController.java
+            │
+            ├── entity
+            │   └── Student.java
+            │
+            ├── repository
+            │   └── Repo.java
+            │
+            └── service
+                ├── service.java
+                └── serviceimpl.java
