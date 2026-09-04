@@ -1,7 +1,9 @@
 package com.example.springdemo.controller;
 
 import com.example.springdemo.entity.Student;
+import com.example.springdemo.responseStructure.ResponseStructure;
 import com.example.springdemo.service.service;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,56 +13,90 @@ import java.util.List;
 @RequestMapping("/students")
 public class controller {
 
-    private final service studentService;
+     private final service serv;
 
-    public controller(service studentService) {
-        this.studentService = studentService;
+    public controller(service serv) {
+        this.serv = serv;
     }
 
-    // create
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+    public ResponseEntity<ResponseStructure<Student>> createStudent(
+            @RequestBody Student student) {
 
-        Student savedStudent = studentService.createStudent(student);
+        Student savedStudent = serv.createStudent(student);
 
-        return ResponseEntity.ok(savedStudent);
+        ResponseStructure<Student> response =
+                new ResponseStructure<>(
+                        201,
+                        "Student created successfully",
+                        savedStudent
+                );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Read all
-    @GetMapping
-    public ResponseEntity<List<Student>> getAllStudents() {
-
-        List<Student> students = studentService.getAllStudents();
-
-        return ResponseEntity.ok(students);
-    }
-
-    // Read one
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
+    public ResponseEntity<ResponseStructure<Student>> getStudentById(
+            @PathVariable Long id) {
 
-        Student student = studentService.getStudentById(id);
+        Student student = serv.getStudentById(id);
 
-        return ResponseEntity.ok(student);
+        ResponseStructure<Student> response =
+                new ResponseStructure<>(
+                        200,
+                        "Student found successfully",
+                        student
+                );
+
+        return ResponseEntity.ok(response);
     }
 
-    // Update
+    @GetMapping
+    public ResponseEntity<ResponseStructure<List<Student>>> getAllStudents() {
+
+        List<Student> students = serv.getAllStudents();
+
+        ResponseStructure<List<Student>> response =
+                new ResponseStructure<>(
+                        200,
+                        "Students fetched successfully",
+                        students
+                );
+
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(
+    public ResponseEntity<ResponseStructure<Student>> updateStudent(
             @PathVariable Long id,
             @RequestBody Student student) {
 
-        Student updatedStudent = studentService.updateStudent(id, student);
+        Student updatedStudent =
+                serv.updateStudent(id, student);
 
-        return ResponseEntity.ok(updatedStudent);
+        ResponseStructure<Student> response =
+                new ResponseStructure<>(
+                        200,
+                        "Student updated successfully",
+                        updatedStudent
+                );
+
+        return ResponseEntity.ok(response);
     }
 
-    // delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
+    public ResponseEntity<ResponseStructure<String>> deleteStudent(
+            @PathVariable Long id) {
 
-        studentService.deleteStudent(id);
+        serv.deleteStudent(id);
 
-        return ResponseEntity.ok("Student deleted successfully");
+        ResponseStructure<String> response =
+                new ResponseStructure<>(
+                        200,
+                        "Student deleted successfully",
+                        null
+                );
+
+        return ResponseEntity.ok(response);
     }
 }
