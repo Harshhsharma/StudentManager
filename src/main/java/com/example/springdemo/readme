@@ -16,3 +16,8 @@ src
             └── service
                 ├── service.java
                 └── serviceimpl.java
+
+            --- Response Structure
+
+            --- Exception --> Global Exception handler (Rest Controller Advice)
+                          --> Custom Exception

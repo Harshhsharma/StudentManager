@@ -21,6 +21,8 @@ public class Student {
     @Column(nullable = false , unique = true)
     private String email;
 
+    private String  gender;
+
     private int age;
 
     private String  course;
@@ -31,10 +33,11 @@ public class Student {
 
     }
 
-    public Student(Long id, String name, String email, int age, String course, double marks) {
+    public Student(Long id, String name, String email, String gender, int age, String course, double marks) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.gender = gender;
         this.age = age;
         this.course = course;
         this.marks = marks;
@@ -62,6 +65,14 @@ public class Student {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public int getAge() {

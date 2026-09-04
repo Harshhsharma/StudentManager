@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/students")
@@ -98,5 +99,26 @@ public class controller {
                 );
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/top10")
+    public ResponseEntity<ResponseStructure<List<Student>>> getTop10Students(){
+        List<Student> stu = serv.getTop10Students();
+        ResponseStructure<List<Student>> rs = new ResponseStructure<>(200 , "student fetch successfully" ,stu);
+        return ResponseEntity.ok(rs);
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ResponseStructure<List<Student>>> createMultipleEntries(@RequestBody List<Student> students){
+        List<Student> stu = serv.createMultipleEntries(students);
+        ResponseStructure<List<Student>> rs = new ResponseStructure<>(201,"List added Successfully", stu);
+        return ResponseEntity.status(HttpStatus.CREATED).body(rs);
+    }
+
+    @GetMapping("/gender")
+    public ResponseEntity<ResponseStructure<Map<String ,List<Student>>>> getStudentByGender(){
+        Map<String ,List<Student>>  students = serv.getAllStudentsByGender();
+        ResponseStructure<Map<String , List<Student>>> rs = new ResponseStructure<>(200 , "students fetc hed successfully" ,students);
+        return ResponseEntity.ok(rs);
     }
 }

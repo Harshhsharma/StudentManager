@@ -7,7 +7,9 @@ import com.example.springdemo.repository.Repo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class serviceimpl implements service {
@@ -47,6 +49,7 @@ public class serviceimpl implements service {
                 .orElseThrow(()-> new ResourceNotFoundException("student not found with"+id));
          existing.setName(student.getName());
          existing.setEmail(student.getEmail());
+         existing.setGender(student.getGender());
          existing.setAge(student.getAge());
          existing.setCourse(student.getCourse());
          existing.setMarks(student.getMarks());
@@ -60,4 +63,22 @@ public class serviceimpl implements service {
                   .orElseThrow(()-> new ResourceNotFoundException("student not found with"+id));
            repo.delete(existing);
     }
+
+    @Override
+    public List<Student> getTop10Students() {
+        return repo.findTop10ByOrderByMarksDesc();
+    }
+
+    @Override
+    public List<Student> createMultipleEntries(List<Student> students) {
+        return repo.saveAll(students);
+    }
+
+    @Override
+    public Map<String, List<Student>> getAllStudentsByGender() {
+        List<Student> students = repo.findAll();
+        return students.stream().collect(Collectors.groupingBy(Student::getGender));
+    }
+
+
 }
