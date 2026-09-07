@@ -3,6 +3,9 @@ package com.example.springdemo.controller;
 import com.example.springdemo.entity.Student;
 import com.example.springdemo.responseStructure.ResponseStructure;
 import com.example.springdemo.service.service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,11 +56,15 @@ public class controller {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseStructure<List<Student>>> getAllStudents() {
+    public ResponseEntity<ResponseStructure<Page<Student>>> getAllStudents(@RequestParam(required = false) String course , @RequestParam(required = false) String gender , @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size) {
 
-        List<Student> students = serv.getAllStudents();
+        Pageable pageable = PageRequest.of(page ,size);
 
-        ResponseStructure<List<Student>> response =
+        Page<Student> students = serv.getAllStudents(course,gender,pageable);
+
+
+
+        ResponseStructure<Page<Student>> response =
                 new ResponseStructure<>(
                         200,
                         "Students fetched successfully",
@@ -120,5 +127,15 @@ public class controller {
         Map<String ,List<Student>>  students = serv.getAllStudentsByGender();
         ResponseStructure<Map<String , List<Student>>> rs = new ResponseStructure<>(200 , "students fetc hed successfully" ,students);
         return ResponseEntity.ok(rs);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ResponseStructure<Student>> patchupdate(@PathVariable  Long id, @RequestBody Student student){
+
+        Student updateStudent = serv.patchUpdate( id, student);
+        ResponseStructure<Student> rs = new ResponseStructure<>(200, "Student partially update successfully" ,updateStudent);
+
+        return ResponseEntity.ok(rs);
+
     }
 }

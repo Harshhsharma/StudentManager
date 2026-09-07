@@ -4,8 +4,11 @@ import com.example.springdemo.entity.Student;
 import com.example.springdemo.exception.DuplicateResourceException;
 import com.example.springdemo.exception.ResourceNotFoundException;
 import com.example.springdemo.repository.Repo;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,11 +34,20 @@ public class serviceimpl implements service {
     }
 
     @Override
-    public List<Student> getAllStudents() {
+    public Page<Student> getAllStudents(String course, String gender, Pageable pageable) {
+         if(course != null && gender != null){
+             return repo.findByCourseAndGender(course,gender,pageable);
+         } else if (course != null) {
+             return repo.findByCourse(course, pageable);
 
-        return repo.findAll();
+         } else if (gender != null) {
+             return repo.findByGender(gender, pageable);
 
+         } else{
+             return repo.findAll(pageable);
+         }
     }
+
 
     @Override
     public Student getStudentById(Long id) {
@@ -78,6 +90,40 @@ public class serviceimpl implements service {
     public Map<String, List<Student>> getAllStudentsByGender() {
         List<Student> students = repo.findAll();
         return students.stream().collect(Collectors.groupingBy(Student::getGender));
+    }
+
+    @Override
+    public Student patchUpdate(Long id, Student student) {
+        Student existing = repo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Student is not present with id :" +id));
+        if( student.getName() != null){
+            existing.setName(student.getName());
+        }
+
+        if( student.getName() != null){
+            existing.setName(student.getName());
+        }
+        if( student.getEmail() != null){
+            existing.setEmail(student.getEmail());}
+
+        if( student.getGender() != null){
+            existing.setGender(student.getGender());
+        }
+
+        if( student.getAge() != null){
+            existing.setAge(student.getAge());
+        }
+        if( student.getCourse() != null){
+            existing.setCourse(student.getCourse());
+        }
+
+        if(student.getMarks() != null){
+            existing.setMarks(student.getMarks());
+        }
+
+
+      return repo.save(existing);
+
     }
 
 

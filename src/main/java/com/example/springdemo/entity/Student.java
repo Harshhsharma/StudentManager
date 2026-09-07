@@ -23,17 +23,17 @@ public class Student {
 
     private String  gender;
 
-    private int age;
+    private Integer age;
 
     private String  course;
 
-    private double marks;
+    private Double marks;
 
     public Student(){
 
     }
 
-    public Student(Long id, String name, String email, String gender, int age, String course, double marks) {
+    public Student(Long id, String name, String email, String gender, Integer age, String course, Double marks) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -75,11 +75,11 @@ public class Student {
         this.gender = gender;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
@@ -91,11 +91,11 @@ public class Student {
         this.course = course;
     }
 
-    public double getMarks() {
+    public Double getMarks() {
         return marks;
     }
 
-    public void setMarks(double marks) {
+    public void setMarks(Double marks) {
         this.marks = marks;
     }
 }
