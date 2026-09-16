@@ -21,3 +21,51 @@ src
 
             --- Exception --> Global Exception handler (Rest Controller Advice)
                           --> Custom Exception
+
+
+                                           CLIENT / POSTMAN
+                                                 |
+                                                 ↓
+                                       ┌───────────────────┐
+                                       │  Student Manager  │
+                                       │      :8080        │
+                                       └───────────────────┘
+                                            |           |
+                                            ↓           ↓
+                                       Student DB   Enrollment DB
+                                                        |
+                                                        |
+                                                   courseId
+                                                        |
+                                                        ↓
+                                              ┌───────────────────┐
+                                              │  Course Manager   │
+                                              │      :8081        │
+                                              └───────────────────┘
+                                                        |
+                                                        ↓
+                                                    Course DB
+
+    1. Student CRUD
+    2. Pagination + Filtering
+    3. Enrollment
+    4. Student ↔ Course Manager communication
+    5. Exception Handling + Response
+
+    # getById (flow)
+
+      GET /students/4
+             ↓
+      Student DB → Student 4
+             ↓
+      Enrollment DB → [2,5]
+             ↓
+      Course Manager → Course 2
+             ↓
+      Course Manager → Course 5
+             ↓
+      List<CourseResponseDto> = [Course2, Course5]
+             ↓
+      StudentResponseDto
+             ↓
+      Final JSON

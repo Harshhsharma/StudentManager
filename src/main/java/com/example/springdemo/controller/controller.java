@@ -1,5 +1,7 @@
 package com.example.springdemo.controller;
 
+import com.example.springdemo.Dto.StudentResponseDto;
+import com.example.springdemo.entity.Enrollment;
 import com.example.springdemo.entity.Student;
 import com.example.springdemo.responseStructure.ResponseStructure;
 import com.example.springdemo.service.service;
@@ -39,13 +41,21 @@ public class controller {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/test-course")
+    public String testCourse() {
+
+        serv.testCourseApi();
+
+        return "Course API called successfully";
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseStructure<Student>> getStudentById(
+    public ResponseEntity<ResponseStructure<StudentResponseDto>> getStudentById(
             @PathVariable Long id) {
 
-        Student student = serv.getStudentById(id);
+        StudentResponseDto student = serv.getStudentById(id);
 
-        ResponseStructure<Student> response =
+        ResponseStructure<StudentResponseDto> response =
                 new ResponseStructure<>(
                         200,
                         "Student found successfully",
@@ -56,15 +66,15 @@ public class controller {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseStructure<Page<Student>>> getAllStudents(@RequestParam(required = false) String course , @RequestParam(required = false) String gender , @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<ResponseStructure<Page<StudentResponseDto>>> getAllStudents(@RequestParam(required = false) String course , @RequestParam(required = false) String gender , @RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page ,size);
 
-        Page<Student> students = serv.getAllStudents(course,gender,pageable);
+        Page<StudentResponseDto> students = serv.getAllStudents(course,gender,pageable);
 
 
 
-        ResponseStructure<Page<Student>> response =
+        ResponseStructure<Page<StudentResponseDto>> response =
                 new ResponseStructure<>(
                         200,
                         "Students fetched successfully",
@@ -137,5 +147,45 @@ public class controller {
 
         return ResponseEntity.ok(rs);
 
+    }
+    @PostMapping("/{studentId}/enroll/{courseId}")
+    public ResponseEntity<ResponseStructure<Enrollment>> enrollStudent(
+            @PathVariable Long studentId,
+            @PathVariable Long courseId) {
+
+        Enrollment enrollment =
+                serv.enrollStudent(studentId, courseId);
+
+        ResponseStructure<Enrollment> response =
+                new ResponseStructure<>(
+                        201,
+                        "Student enrolled successfully",
+                        enrollment
+                );
+
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<ResponseStructure<List<Student>>> getStudentsByCourseId(
+            @PathVariable Long courseId) {
+
+        List<Student> students =
+                serv.getStudentsByCourseId(courseId);
+
+        ResponseStructure<List<Student>> response =
+                new ResponseStructure<>(
+                        200,
+                        "Students enrolled in course fetched successfully",
+                        students
+                );
+
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.OK
+        );
     }
 }

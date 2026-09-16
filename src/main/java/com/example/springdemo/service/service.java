@@ -1,5 +1,7 @@
 package com.example.springdemo.service;
 
+import com.example.springdemo.Dto.StudentResponseDto;
+import com.example.springdemo.entity.Enrollment;
 import com.example.springdemo.entity.Student;
 import org.springframework.data.domain.Page;
 
@@ -12,9 +14,9 @@ public interface service {
 
     Student createStudent(Student student);
 
-    Page<Student> getAllStudents(String Course , String gender , Pageable pageable);
+    Page<StudentResponseDto> getAllStudents(String Course , String gender , Pageable pageable);
 
-    Student getStudentById(Long id);
+    StudentResponseDto getStudentById(Long id);
 
     Student updateStudent(Long id, Student student);
 
@@ -27,4 +29,12 @@ public interface service {
     Map<String ,List<Student>> getAllStudentsByGender();
 
     Student patchUpdate(Long id , Student student);
+
+    void testCourseApi();
+
+    Enrollment enrollStudent(Long studentId, Long courseId);
+
+    List<Long> getCourseIdsByStudentId(Long studentId);
+
+    List<Student> getStudentsByCourseId(Long courseId);
 }

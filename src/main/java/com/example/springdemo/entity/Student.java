@@ -29,11 +29,14 @@ public class Student {
 
     private Double marks;
 
+
+    private Long course_id;
+
     public Student(){
 
     }
 
-    public Student(Long id, String name, String email, String gender, Integer age, String course, Double marks) {
+    public Student(Long id, String name, String email, String gender, Integer age, String course, Double marks, Long course_id) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -41,6 +44,7 @@ public class Student {
         this.age = age;
         this.course = course;
         this.marks = marks;
+        this.course_id = course_id;
     }
 
     public Long getId() {
@@ -97,5 +101,13 @@ public class Student {
 
     public void setMarks(Double marks) {
         this.marks = marks;
+    }
+
+    public Long getCourse_id() {
+        return course_id;
+    }
+
+    public void setCourse_id(Long course_id) {
+        this.course_id = course_id;
     }
 }

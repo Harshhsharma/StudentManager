@@ -16,9 +16,9 @@ public interface Repo extends JpaRepository<Student , Long> {
 
     List<Student> findTop10ByOrderByMarksDesc();
 
-    Page<Student> findByCourseAndGender(String course , String gender , Pageable pageable);
+    Page<Student> findByCourseAndGenderIgnoreCase(String course , String gender , Pageable pageable);
 
-    Page<Student> findByCourse(String course , Pageable pageable);
+    Page<Student> findByCourseIgnoreCase(String course , Pageable pageable);
 
-    Page<Student> findByGender(String gender , Pageable pageable);
+    Page<Student> findByGenderIgnoreCase(String gender , Pageable pageable);
 }

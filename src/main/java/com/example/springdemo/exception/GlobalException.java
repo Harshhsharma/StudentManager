@@ -26,4 +26,27 @@ public class GlobalException {
         ResponseStructure<String> response = new ResponseStructure<>(500,"something went wrong",null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    @ExceptionHandler(InvalidGenderException.class)
+    ResponseEntity<ResponseStructure<String>> handleInvalidException(InvalidGenderException ex){
+        ResponseStructure<String> response = new ResponseStructure<>(400 , ex.getMessage(),null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(EnrollmentLimitException.class)
+    public ResponseEntity<ResponseStructure<String>> handleEnrollmentLimit(
+            EnrollmentLimitException ex) {
+
+        ResponseStructure<String> response =
+                new ResponseStructure<>(
+                        400,
+                        ex.getMessage(),
+                        null
+                );
+
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }
