@@ -37,4 +37,9 @@ public interface service {
     List<Long> getCourseIdsByStudentId(Long studentId);
 
     List<Student> getStudentsByCourseId(Long courseId);
+
+    Page<StudentResponseDto> getStudentsByCourseId(
+            Long courseId,
+            Pageable pageable
+    );
 }

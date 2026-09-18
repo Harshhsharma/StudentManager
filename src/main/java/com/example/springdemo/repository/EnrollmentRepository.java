@@ -2,8 +2,10 @@
 package com.example.springdemo.repository;
 
 import com.example.springdemo.entity.Enrollment;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
 
 
 import java.util.List;
@@ -21,5 +23,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findByStudentId(Long studentId);   // Student 7 ke saare records dikhao.
 
     List<Enrollment> findByCourseId(Long courseId);
+
+    Page<Enrollment> findByCourseId(Long courseId, Pageable pageable);
 }
 

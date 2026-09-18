@@ -43,15 +43,6 @@ public class serviceimpl implements service {
 
     private final CourseClient courseClient;
 
-//    public serviceimpl(Repo repo , RestTemplate restTemplate) {
-//        this.repo = repo;
-//        this.restTemplate = restTemplate;
-//        ;
-//    }
-
-
-
-
     @Override
     public Student createStudent(Student student) {
         Optional<Student> existing = repo.findByEmail(student.getEmail());
@@ -87,7 +78,7 @@ public class serviceimpl implements service {
             students = repo.findByCourseIgnoreCase(
                     course, pageable);
 
-        } else if (gender != null) {
+        } else if (gender != null && !gender.isBlank()) {
             students = repo.findByGenderIgnoreCase(
                     gender, pageable);
 
@@ -151,6 +142,58 @@ public class serviceimpl implements service {
 
             return response;
         });
+    }
+
+    // Helper method
+    private StudentResponseDto convertToStudentResponseDto(Student student) {
+
+        StudentResponseDto response = new StudentResponseDto();
+
+        response.setId(student.getId());
+        response.setName(student.getName());
+        response.setEmail(student.getEmail());
+        response.setMarks(student.getMarks());
+        response.setCourse_id(student.getCourse_id());
+
+        List<Long> courseIds =
+                getCourseIdsByStudentId(student.getId());
+
+        List<CourseResponseDto> courses =
+                new ArrayList<>();
+
+        for (Long courseId : courseIds) {
+
+            ResponseEntity<ResponseStructure<CourseResponseDto>> courseResponse =
+                    courseClient.getCourseById(courseId);
+
+            CourseResponseDto course =
+                    courseResponse.getBody().getData();
+
+            courses.add(course);
+        }
+
+        response.setCourseResponseDtos(courses);
+
+        return response;
+    }
+    // for pagination and sort linked to enrollment table
+    @Override
+    public Page<StudentResponseDto> getStudentsByCourseId(
+            Long courseId,
+            Pageable pageable) {
+
+        Page<Enrollment> enrollments =
+                enrollmentRepository.findByCourseId(courseId, pageable);
+
+        return enrollments.map(enrollment ->
+                repo.findById(enrollment.getStudentId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Student not found with id: "
+                                                + enrollment.getStudentId()
+                                )
+                        )
+        ).map(this::convertToStudentResponseDto);
     }
     @Override
     public StudentResponseDto getStudentById(Long id) {

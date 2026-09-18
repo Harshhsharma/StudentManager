@@ -22,8 +22,4 @@ public class StudentResponseDto {
     private Long course_id;
 
     private List<CourseResponseDto> courseResponseDtos;
-
-
-
-
 }
