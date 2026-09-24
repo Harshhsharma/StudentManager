@@ -1,6 +1,7 @@
 package com.example.springdemo.service;
 
 import com.example.springdemo.Dto.CourseResponseDto;
+import com.example.springdemo.Dto.EnrollmentEvent;
 import com.example.springdemo.Dto.StudentResponseDto;
 import com.example.springdemo.client.CourseClient;
 import com.example.springdemo.entity.Enrollment;
@@ -42,6 +43,8 @@ public class serviceimpl implements service {
     private final EnrollmentRepository enrollmentRepository;
 
     private final CourseClient courseClient;
+
+    private final KafkaProducerService kafkaProducerService;
 
     @Override
     public Student createStudent(Student student) {
@@ -395,7 +398,19 @@ public class serviceimpl implements service {
 
 
         // 6. Enrollment table mein save karo
-        return enrollmentRepository.save(enrollment);
+        Enrollment savedEnrollment =
+                enrollmentRepository.save(enrollment);
+
+// 7. Kafka event publish karo
+        EnrollmentEvent event =
+                new EnrollmentEvent(
+                        studentId,
+                        courseId
+                );
+
+        kafkaProducerService.sendEnrollmentEvent(event);
+
+        return savedEnrollment;
     }
 
     @Override
