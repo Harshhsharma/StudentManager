@@ -34,6 +34,8 @@ public interface service {
 
     Enrollment enrollStudent(Long studentId, Long courseId);
 
+    Enrollment enrollStudentUsingKafka(Long studentId, Long courseId);
+
     List<Long> getCourseIdsByStudentId(Long studentId);
 
     List<Student> getStudentsByCourseId(Long courseId);
@@ -42,4 +44,6 @@ public interface service {
             Long courseId,
             Pageable pageable
     );
+
+    Enrollment saveEnrollment(Long studentId, Long courseId);
 }

@@ -1,6 +1,7 @@
 package com.example.springdemo.service;
 
 import com.example.springdemo.Dto.CourseResponseDto;
+import com.example.springdemo.Dto.CourseValidationEvent;
 import com.example.springdemo.Dto.EnrollmentEvent;
 import com.example.springdemo.Dto.StudentResponseDto;
 import com.example.springdemo.client.CourseClient;
@@ -26,10 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -414,6 +412,23 @@ public class serviceimpl implements service {
     }
 
     @Override
+    public Enrollment enrollStudentUsingKafka(Long studentId, Long courseId) {
+
+        String requestId = UUID.randomUUID().toString();
+
+        CourseValidationEvent event =
+                new CourseValidationEvent(
+                        requestId,
+                        studentId,
+                        courseId
+                );
+
+        kafkaProducerService.sendCourseValidationRequest(event);
+
+        return null;
+    }
+
+    @Override
     public List<Long> getCourseIdsByStudentId(Long studentId) { //Student ko fetch karte time uske saare enrolled courses ka data dikhana hai.
 
         List<Enrollment> enrollments =
@@ -440,5 +455,61 @@ public class serviceimpl implements service {
                                 )
                         ))
                 .toList();
+    }
+
+    @Override
+    public Enrollment saveEnrollment(Long studentId, Long courseId) {
+
+        // 1. Check student exists
+        repo.findById(studentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Student not found with id: " + studentId
+                        )
+                );
+
+        // 2. Check duplicate enrollment
+        Optional<Enrollment> existing =
+                enrollmentRepository.findByStudentIdAndCourseId(
+                        studentId,
+                        courseId
+                );
+
+        if (existing.isPresent()) {
+            throw new DuplicateResourceException(
+                    "Student is already enrolled in this course"
+            );
+        }
+
+        // 3. Check maximum course limit
+        long count =
+                enrollmentRepository.countByStudentId(studentId);
+
+        if (count >= 2) {
+            throw new EnrollmentLimitException(
+                    "You are already enrolled in 2 courses"
+            );
+        }
+
+        // 4. Create enrollment
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudentId(studentId);
+        enrollment.setCourseId(courseId);
+
+        // 5. Save enrollment in DB
+        Enrollment savedEnrollment =
+                enrollmentRepository.save(enrollment);
+
+        // 6. Send successful enrollment event to Kafka
+        EnrollmentEvent event =
+                new EnrollmentEvent(
+                        studentId,
+                        courseId
+                );
+
+        kafkaProducerService.sendEnrollmentEvent(event);
+
+        // 7. Return saved enrollment
+        return savedEnrollment;
     }
 }

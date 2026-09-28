@@ -225,4 +225,25 @@ public class controller {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{studentId}/enroll-kafka/{courseId}")
+    public ResponseEntity<ResponseStructure<Enrollment>> enrollStudentUsingKafka(
+            @PathVariable Long studentId,
+            @PathVariable Long courseId) {
+
+        Enrollment enrollment =
+                serv.enrollStudentUsingKafka(studentId, courseId);
+
+        ResponseStructure<Enrollment> response =
+                new ResponseStructure<>(
+                        201,
+                        "Student enrolled successfully using Kafka",
+                        enrollment
+                );
+
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.CREATED
+        );
+    }
 }
