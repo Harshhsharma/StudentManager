@@ -19,6 +19,7 @@ public class CourseValidationResponseConsumer {
     @KafkaListener(
             topics = "course-validation-to-student",
             groupId = "student-validation-group"
+
     )
     public void consumeCourseValidationResponse(
             CourseValidationResponse response) {
@@ -30,18 +31,42 @@ public class CourseValidationResponseConsumer {
                         + response.isCourseExists()
         );
 
-        if (response.isCourseExists()) {
 
-            Enrollment enrollment =
-                    serv.saveEnrollment(
-                            response.getStudentId(),
-                            response.getCourseId()
-                    );
 
-            System.out.println(
-                    "Enrollment created: "
-                            + enrollment.getId()
-            );
-        }
+
+    if (response.isCourseExists()) {
+
+        Enrollment enrollment =
+                serv.saveEnrollment(
+                        response.getStudentId(),
+                        response.getCourseId()
+                );
+
+        serv.updateEnrollmentRequestStatus(
+                response.getRequestId(),
+                "COMPLETED",
+                enrollment.getId(),
+                "Enrollment completed successfully"
+        );
+
+        System.out.println(
+                "Enrollment created: "
+                        + enrollment.getId()
+        );
+    }
+    else {
+
+        serv.updateEnrollmentRequestStatus(
+                response.getRequestId(),
+                "FAILED",
+                null,
+                "Course not found"
+        );
+
+        System.out.println(
+                "Enrollment failed: course not found"
+        );
+    }
+
     }
 }

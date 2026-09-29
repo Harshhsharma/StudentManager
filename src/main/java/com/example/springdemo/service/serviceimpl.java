@@ -6,12 +6,14 @@ import com.example.springdemo.Dto.EnrollmentEvent;
 import com.example.springdemo.Dto.StudentResponseDto;
 import com.example.springdemo.client.CourseClient;
 import com.example.springdemo.entity.Enrollment;
+import com.example.springdemo.entity.EnrollmentRequest;
 import com.example.springdemo.entity.Student;
 import com.example.springdemo.exception.DuplicateResourceException;
 import com.example.springdemo.exception.EnrollmentLimitException;
 import com.example.springdemo.exception.InvalidGenderException;
 import com.example.springdemo.exception.ResourceNotFoundException;
 import com.example.springdemo.repository.EnrollmentRepository;
+import com.example.springdemo.repository.EnrollmentRequestRepository;
 import com.example.springdemo.repository.Repo;
 import com.example.springdemo.responseStructure.ResponseStructure;
 import feign.FeignException;
@@ -41,6 +43,8 @@ public class serviceimpl implements service {
     private final EnrollmentRepository enrollmentRepository;
 
     private final CourseClient courseClient;
+
+    private final EnrollmentRequestRepository enrollmentRequestRepository;
 
     private final KafkaProducerService kafkaProducerService;
 
@@ -412,9 +416,19 @@ public class serviceimpl implements service {
     }
 
     @Override
-    public Enrollment enrollStudentUsingKafka(Long studentId, Long courseId) {
+    public String enrollStudentUsingKafka(Long studentId, Long courseId) {
 
         String requestId = UUID.randomUUID().toString();
+
+        EnrollmentRequest request = new EnrollmentRequest();
+
+        request.setRequestId(requestId);
+        request.setStudentId(studentId);
+        request.setCourseId(courseId);
+        request.setStatus("PROCESSING");
+        request.setMessage("Enrollment request is being processed");
+
+        enrollmentRequestRepository.save(request);
 
         CourseValidationEvent event =
                 new CourseValidationEvent(
@@ -425,9 +439,8 @@ public class serviceimpl implements service {
 
         kafkaProducerService.sendCourseValidationRequest(event);
 
-        return null;
+        return requestId;
     }
-
     @Override
     public List<Long> getCourseIdsByStudentId(Long studentId) { //Student ko fetch karte time uske saare enrolled courses ka data dikhana hai.
 
@@ -511,5 +524,42 @@ public class serviceimpl implements service {
 
         // 7. Return saved enrollment
         return savedEnrollment;
+    }
+
+    @Override
+    public void updateEnrollmentRequestStatus(
+            String requestId,
+            String status,
+            Long enrollmentId,
+            String message) {
+
+        EnrollmentRequest request =
+                enrollmentRequestRepository
+                        .findByRequestId(requestId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Enrollment request not found with requestId: "
+                                                + requestId
+                                )
+                        );
+
+        request.setStatus(status);
+        request.setEnrollmentId(enrollmentId);
+        request.setMessage(message);
+
+        enrollmentRequestRepository.save(request);
+    }
+
+    @Override
+    public EnrollmentRequest getEnrollmentRequestStatus(String requestId) {
+
+        return enrollmentRequestRepository
+                .findByRequestId(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Enrollment request not found with requestId: "
+                                        + requestId
+                        )
+                );
     }
 }

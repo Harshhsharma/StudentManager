@@ -2,6 +2,7 @@ package com.example.springdemo.controller;
 
 import com.example.springdemo.Dto.StudentResponseDto;
 import com.example.springdemo.entity.Enrollment;
+import com.example.springdemo.entity.EnrollmentRequest;
 import com.example.springdemo.entity.Student;
 import com.example.springdemo.responseStructure.ResponseStructure;
 import com.example.springdemo.service.service;
@@ -227,23 +228,42 @@ public class controller {
     }
 
     @PostMapping("/{studentId}/enroll-kafka/{courseId}")
-    public ResponseEntity<ResponseStructure<Enrollment>> enrollStudentUsingKafka(
+    public ResponseEntity<ResponseStructure<String>> enrollStudentUsingKafka(
             @PathVariable Long studentId,
             @PathVariable Long courseId) {
 
-        Enrollment enrollment =
-                serv.enrollStudentUsingKafka(studentId, courseId);
+        String requestId =
+                serv.enrollStudentUsingKafka(
+                        studentId,
+                        courseId
+                );
 
-        ResponseStructure<Enrollment> response =
+        ResponseStructure<String> response =
                 new ResponseStructure<>(
-                        201,
-                        "Student enrolled successfully using Kafka",
-                        enrollment
+                        202,
+                        "Enrollment request accepted and is being processed",
+                        requestId
                 );
 
         return new ResponseEntity<>(
                 response,
-                HttpStatus.CREATED
+                HttpStatus.ACCEPTED
         );
+    }
+    @GetMapping("/enrollment-status/{requestId}")
+    public ResponseEntity<ResponseStructure<EnrollmentRequest>> getEnrollmentStatus(
+            @PathVariable String requestId) {
+
+        EnrollmentRequest request =
+                serv.getEnrollmentRequestStatus(requestId);
+
+        ResponseStructure<EnrollmentRequest> response =
+                new ResponseStructure<>(
+                        200,
+                        "Enrollment request status fetched successfully",
+                        request
+                );
+
+        return ResponseEntity.ok(response);
     }
 }

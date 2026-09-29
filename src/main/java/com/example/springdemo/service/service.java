@@ -2,6 +2,7 @@ package com.example.springdemo.service;
 
 import com.example.springdemo.Dto.StudentResponseDto;
 import com.example.springdemo.entity.Enrollment;
+import com.example.springdemo.entity.EnrollmentRequest;
 import com.example.springdemo.entity.Student;
 import org.springframework.data.domain.Page;
 
@@ -34,7 +35,7 @@ public interface service {
 
     Enrollment enrollStudent(Long studentId, Long courseId);
 
-    Enrollment enrollStudentUsingKafka(Long studentId, Long courseId);
+    String enrollStudentUsingKafka(Long studentId, Long courseId);
 
     List<Long> getCourseIdsByStudentId(Long studentId);
 
@@ -46,4 +47,13 @@ public interface service {
     );
 
     Enrollment saveEnrollment(Long studentId, Long courseId);
+
+    void updateEnrollmentRequestStatus(
+            String requestId,
+            String status,
+            Long enrollmentId,
+            String message
+    );
+
+    EnrollmentRequest getEnrollmentRequestStatus(String requestId);
 }
