@@ -12,12 +12,14 @@ import com.example.springdemo.exception.DuplicateResourceException;
 import com.example.springdemo.exception.EnrollmentLimitException;
 import com.example.springdemo.exception.InvalidGenderException;
 import com.example.springdemo.exception.ResourceNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
 import com.example.springdemo.repository.EnrollmentRepository;
 import com.example.springdemo.repository.EnrollmentRequestRepository;
 import com.example.springdemo.repository.Repo;
 import com.example.springdemo.responseStructure.ResponseStructure;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
@@ -201,6 +203,7 @@ public class serviceimpl implements service {
         ).map(this::convertToStudentResponseDto);
     }
     @Override
+    @Cacheable(value = "students", key = "#p0")
     public StudentResponseDto getStudentById(Long id) {
 
         // 1. Student ko database se find karo
@@ -252,6 +255,7 @@ public class serviceimpl implements service {
         return response;
     }
     @Override
+    @CacheEvict(value = "students", key = "#p0")
     public Student updateStudent(Long id, Student student) {
         Student existing = repo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("student not found with"+id));
@@ -267,6 +271,7 @@ public class serviceimpl implements service {
     }
 
     @Override
+    @CacheEvict(value = "students", key = "#p0")
     public void deleteStudent(Long id) {
           Student existing = repo.findById(id)
                   .orElseThrow(()-> new ResourceNotFoundException("student not found with"+id));
@@ -290,6 +295,7 @@ public class serviceimpl implements service {
     }
 
     @Override
+    @CacheEvict(value = "students", key = "#p0")
     public Student patchUpdate(Long id, Student student) {
         Student existing = repo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Student is not present with id :" +id));
